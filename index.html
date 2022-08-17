@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            font-family: sans-serif;
+            font-size: 20px;
+        }
+
+        body.dark {
+            background-color: #222;
+            color: white;
+        }
+
+        body:not(.dark) {
+            background-color: #eee;
+            color: black;
+        }
+
+        .container {
+            margin-inline: auto;
+            max-width: 30rem;
+            padding-inline: 12px;
+        }
+
+
+
+        /*These are the actual transition styles*/
+        /*The clip-path transition is generated in JS at runtime, since the origin of the animation can change, see <script> tag at bottom*/
+        ::page-transition-outgoing-image(root),
+        ::page-transition-incoming-image(root) {
+            /*Disable default crossfade*/
+            animation: none;
+
+            /* Use normal blending, so the incoming image sits on top and obscures the outgoing image */
+            /* The default blend-mode is plus-lighter, which is better for crossfades */
+            mix-blend-mode: normal;
+        }
+    </style>
+
+    <title>Dark Mode Transition Demo</title>
+</head>
+
+<body class="dark">
+    <main class="container">
+        <label>
+            <input type="checkbox" name="darkmode" id="darkmode-checkbox" checked />
+            <span>Dark Mode</span>
+        </label>
+        <section>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut efficitur id elit sodales elementum. Fusce
+                aliquet
+                lectus id felis feugiat, eu fermentum ante imperdiet. Nulla facilisi. Donec rutrum ligula vitae
+                ullamcorper
+                pharetra. In finibus ornare est, ac malesuada nisl lobortis nec. Vestibulum tincidunt ultricies dapibus.
+                Nulla
+                suscipit, augue sit amet feugiat aliquam, leo lacus condimentum felis, nec rhoncus ante neque ut nibh.
+                Nam
+                consectetur sodales lacinia. Nam suscipit id lacus viverra aliquet. Nam tempor convallis nulla, in
+                euismod
+                turpis feugiat ut. Sed sed tortor rutrum, semper est vel, porttitor est. Aliquam velit quam, egestas a
+                interdum
+                vel, pharetra sit amet erat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi iaculis
+                hendrerit
+                magna vitae euismod. Fusce et nisl quis ex sollicitudin blandit et ac enim.
+            </p>
+
+            <!--Image to proove this isn't just an invert() filter-->
+            <img src="cat.jpeg" width="100%" aspect-ratio="1100/618" />
+            <p>
+                Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce eget
+                tincidunt urna. Maecenas vel cursus ipsum, vel finibus magna. In eget lectus ac ante accumsan pretium
+                sed at
+                odio. Mauris porta fringilla dolor non lacinia. Duis eu pulvinar lectus. Nunc volutpat rutrum sodales.
+                Quisque
+                non pharetra sem. Maecenas a sem in massa egestas ornare eget eget nisi.
+            </p>
+
+
+        </section>
+    </main>
+
+
+    <script>
+        const body = document.getElementsByTagName("body")[0];
+        const checkbox = document.getElementById("darkmode-checkbox");
+
+        checkbox.addEventListener("input", updateTheme);
+        async function updateTheme() {
+            //Fallback for browsers withot transition support
+            if (!document.createDocumentTransition) {
+                body.classList.toggle("dark", checkbox.checked);
+                return;
+            }
+
+
+            //Actual Transitioning
+            const transition = document.createDocumentTransition();
+            transition.start(() => {
+
+                //Compute The Origin of the circle
+                const bb = checkbox.getBoundingClientRect()
+                const x = bb.left + bb.width / 2;
+                const y = bb.top + bb.height / 2;
+
+                // Get the distance to the furthest corner
+                const endRadius = Math.sqrt(
+                    Math.max(x, innerWidth - x) ** 2 + Math.max(y, innerHeight - y) ** 2
+                );
+
+                //Switch to dark mode
+                body.classList.toggle("dark", checkbox.checked);
+
+                // Use requestAnimationFrame to wait for the pseudo-elements to be created:
+                requestAnimationFrame(() => {
+                    // Animate the root's incoming image
+                    document.documentElement.animate(
+                        [
+                            { clipPath: `circle(0 at ${x}px ${y}px)` },
+                            { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
+                        ],
+                        {
+                            duration: 250,
+                            easing: 'ease-in',
+                            // Specify which pseudo-element to animate
+                            pseudoElement: '::page-transition-incoming-image(root)',
+                        }
+                    );
+                });
+            });
+        }
+
+    </script>
+</body>
+
+</html>
