@@ -1,8 +1,8 @@
 # Dark Mode Transitions
 
-Just a quick showcase of how you can use the (very experimental) page transitions api to toggle a sites theme.
+Just a quick showcase of how you can use the (very experimental) page-transitions api to toggle a sites theme.
 
-> Note: You currently must use chrome canary with the `#document-transitions` flag enabled for this to work.
+> Note: :warning: This example is for an outdated version of the view-transitions-api and no longer works
 
 ![Theme switching with page transition example](./preview.gif)
 
